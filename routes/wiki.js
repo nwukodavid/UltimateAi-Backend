@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-router.post("/", (req, res) => {
-  res.json({ message: "Assist route working" });
+router.get("/", (req, res) => {
+  res.json({ message: "Wiki route working" });
 });
 
 module.exports = router;

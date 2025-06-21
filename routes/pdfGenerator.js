@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 router.post("/", (req, res) => {
-  res.json({ message: "Assist route working" });
+  res.json({ message: "PDF Generator route working" });
 });
 
 module.exports = router;
