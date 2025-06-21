@@ -1,63 +1,52 @@
-const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+// controllers/authController.js
 
-// Register User
-exports.registerUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// Dummy in-memory database (you should use MongoDB in production)
+const users = [];
 
-    // Basic validation
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
+// Register a new user
+exports.registerUser = (req, res) => {
+  const { email, password } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Save new user
-    const newUser = new User({ email, password: hashedPassword });
-    await newUser.save();
-
-    return res.status(201).json({
-      message: "Signup successful",
-      user: { email: newUser.email, id: newUser._id },
-    });
-  } catch (err) {
-    console.error("Signup Error:", err.message);
-    return res.status(500).json({ error: "Internal Server Error" });
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required." });
   }
+
+  const existingUser = users.find(user => user.email === email);
+  if (existingUser) {
+    return res.status(409).json({ message: "User already exists." });
+  }
+
+  users.push({ email, password });
+  return res.status(201).json({ message: "User registered successfully." });
 };
 
-// Login User
-const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// Login user
+exports.loginUser = (req, res) => {
+  const { email, password } = req.body;
 
-    // validate input (you can add your own logic here)
-    if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    // check against DB (mocked for now)
-    const isUser = true; // replace with your DB logic
-    if (!isUser) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    res.status(200).json({ message: "Login successful", token: "abc123" });
-  } catch (error) {
-    res.status(500).json({ message: "Login error", error: error.message });
+  const user = users.find(user => user.email === email && user.password === password);
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email or password." });
   }
+
+  return res.status(200).json({ message: "Login successful." });
 };
 
-module.exports = { loginUser };
-// Forgot Password (dummy for now)
-exports.forgotPassword = async (req, res) => {
-  return res.status(200).json({ message: "Forgot password route working" });
+// Forgot password
+exports.forgotPassword = (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
+  const user = users.find(user => user.email === email);
+  if (!user) {
+    return res.status(404).json({ message: "User not found." });
+  }
+
+  // Simulate sending password reset link (mock)
+  return res.status(200).json({
+    message: `A password reset link has been sent to ${email}. (This is a mock response)`
+  });
 };
